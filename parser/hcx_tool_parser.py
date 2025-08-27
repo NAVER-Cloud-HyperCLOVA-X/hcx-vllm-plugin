@@ -15,7 +15,7 @@ from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
                                               FunctionCall, ToolCall)
 from vllm.entrypoints.openai.tool_parsers.abstract_tool_parser import ToolParser
 from vllm.logger import init_logger
-from vllm.transformers_utils.tokenizer import AnyTokenizer, MistralTokenizer
+from vllm.transformers_utils.tokenizer import AnyTokenizer
 
 from .hcx_parser_mixin import HcxStreamingParserFunctionsMixin
 
@@ -68,8 +68,8 @@ class HcxToolParser(ToolParser, HcxStreamingParserFunctionsMixin):
                 ]
                 
                 # check if there is other content before tool calls
-                if '<|im_start|>assistant -> tool/function_call\n' in model_output:
-                    content = model_output.split('<|im_start|>assistant -> tool/function_call\n')[0]
+                if '<|im_end|>\n<|im_start|>assistant -> tool/function_call\n' in model_output:
+                    content = model_output.split('<|im_end|>\n<|im_start|>assistant -> tool/function_call\n')[0]
 
                     return ExtractedToolCallInformation(
                         tools_called=True,

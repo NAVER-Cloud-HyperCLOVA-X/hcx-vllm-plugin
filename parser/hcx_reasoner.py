@@ -23,7 +23,6 @@ class HcxReasoningParser(ReasoningParser, HcxStreamingParserFunctionsMixin):
         super().__init__(tokenizer)
         self.think_start_token = "/think\n"
         self.think_end_token = "<|im_end|>\n<|im_start|>assistant"
-        self.think_start_token_ids = tokenizer.encode('<|im_start|>assistant/think\n')
 
         # for streaming
         self.end_token_id = self.vocab.get("<|im_end|>")
@@ -40,12 +39,25 @@ class HcxReasoningParser(ReasoningParser, HcxStreamingParserFunctionsMixin):
     def extract_reasoning_content(
             self, model_output: str, request: ChatCompletionRequest
     ) -> tuple[Optional[str], Optional[str]]:
+        chat_template_kwargs = request.chat_template_kwargs or {}
+        if chat_template_kwargs.get('skip_reasoning', False):
+            return None, model_output
+
+        is_reasoning = False
+
+        if chat_template_kwargs.get('force_reasoning', False):
+            is_reasoning = True
+
         if model_output.startswith(self.think_start_token):
+            is_reasoning = True
             model_output_parts = model_output.partition(self.think_start_token)
             model_output = model_output_parts[2]
         
         if self.think_end_token not in model_output:
-            return None, model_output
+            if is_reasoning:
+                return model_output, None
+            else:
+                return None, model_output
 
         reasoning_content, _, content = model_output.partition(self.think_end_token)
 
