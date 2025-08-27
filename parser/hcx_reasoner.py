@@ -23,7 +23,6 @@ class HcxReasoningParser(ReasoningParser, HcxStreamingParserFunctionsMixin):
         super().__init__(tokenizer)
         self.think_start_token = "/think\n"
         self.think_end_token = "<|im_end|>\n<|im_start|>assistant"
-        self.think_start_token_ids = tokenizer.encode('<|im_start|>assistant/think\n')
 
         # for streaming
         self.end_token_id = self.vocab.get("<|im_end|>")
