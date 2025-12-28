@@ -105,12 +105,9 @@ class HcxReasoningParser(ReasoningParser, HcxStreamingParserFunctionsMixin):
                 else:
                     self.buffer_string = ''
                     return DeltaMessage(reasoning_content=buffered_content, content=delta_text)
-                
+
         if self.check_is_part_of_special_string():
-            if self.is_reasoning_end(delta_token_ids):
-                return DeltaMessage(reasoning_content=self.buffer_string)
-            else:
-                return None
+            return None
         else:
             delta_text = self.buffer_string
             self.buffer_string = ''
