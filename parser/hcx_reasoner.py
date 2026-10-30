@@ -141,11 +141,15 @@ class HcxReasoningParser(ReasoningParser, HcxStreamingParserFunctionsMixin):
 
             return False
 
-        return self.no_reasoning_content or self.end_token_id in input_ids
+        if self.end_token_id is not None and self.end_token_id in input_ids:
+            return True
+
+        return self.no_reasoning_content
 
 
     def extract_content_ids(self, input_ids: list[int]) -> list[int]:
-        if self.end_token_id not in input_ids[:-1]:
+        if self.end_token_id is None or self.end_token_id not in input_ids[:-1]:
             return []
         else:
             return input_ids[input_ids.index(self.end_token_id) + 1:]
+
